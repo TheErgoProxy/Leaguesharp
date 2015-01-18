@@ -48,10 +48,10 @@ namespace Darker_Than_Black_Vayne
             spellData = new Dictionary<string, SpellSlot>();
             menu = new Menu("Darker Than Bl#ck", "Gosu", true);
             //Orbwalker
-            menu.AddSubMenu(new Menu("[Fear] Orbwalker", "Orbwalker"));
+            menu.AddSubMenu(new Menu("[D#rk] Orbwalker", "Orbwalker"));
             orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker"));
             //TS
-            var TargetSelectorMenu = new Menu("[Fear] Target Selector", "Target Selector");
+            var TargetSelectorMenu = new Menu("[D#rk] Target Selector", "Target Selector");
             TargetSelector.AddToMenu(TargetSelectorMenu);
             menu.AddSubMenu(TargetSelectorMenu);
             menu.AddItem(
@@ -64,13 +64,13 @@ namespace Darker_Than_Black_Vayne
             menu.AddItem(new MenuItem("UseEC", "Use E").SetValue(true));
             menu.AddItem(
                 new MenuItem("UseEaa", "Use E after auto").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.AddSubMenu(new Menu("[Fear] Gapcloser List", "gap"));
-            menu.AddSubMenu(new Menu("[Fear] Gapcloser List 2", "gap2"));
-            menu.AddSubMenu(new Menu("[Fear] Interrupt List", "int"));
+            menu.AddSubMenu(new Menu("[D#rk] Gapcloser List", "gap"));
+            menu.AddSubMenu(new Menu("[D#rk] Gapcloser List 2", "gap2"));
+            menu.AddSubMenu(new Menu("[D#rk] Interrupt List", "int"));
             Q = new Spell(SpellSlot.Q, 0f);
             E = new Spell(SpellSlot.E, float.MaxValue);
 
-            menu.AddSubMenu(new Menu("[Fear] Items", "items"));
+            menu.AddSubMenu(new Menu("[D#rk] Items", "items"));
             menu.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
             menu.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
             menu.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
@@ -88,15 +88,30 @@ namespace Darker_Than_Black_Vayne
                 .SubMenu("Offensive")
                 .AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
             menu.SubMenu("items").AddSubMenu(new Menu("Potions", "Potions"));
+            menu.SubMenu("items")
+                    .SubMenu("Potions")
+                .AddItem(new MenuItem("usehppotions", "Use Health Potion/Flask/Biscuit"))
+                        .SetValue(true);
+            menu.SubMenu("items")
+                .SubMenu("Potions")
+                .AddItem(new MenuItem("usepotionhp", "If Health % <").SetValue(new Slider(35, 1, 100)));
+            menu.SubMenu("items")
+                .SubMenu("Potions")
+                .AddItem(new MenuItem("usemppotions", "Use Mana Potion/Flask/Biscuit"))
+                .SetValue(true);
+            menu.SubMenu("items")
+                .SubMenu("Potions")
+                .AddItem(new MenuItem("usepotionmp", "If Mana % <").SetValue(new Slider(35, 1, 100)));
 
-            menu.AddSubMenu(new Menu("[Fear] Misc", "MiscT"));
+
+            menu.AddSubMenu(new Menu("[D#rk] Misc", "MiscT"));
                         menu.SubMenu("MiscT").AddSubMenu(new Menu("Offensive", "Offensive"));
             menu.SubMenu("MiscT").SubMenu("Offensive").AddItem(new MenuItem("SpecialFocus", "Focus targets with 2 W marks.")).SetValue(true);
             menu.SubMenu("MiscT").SubMenu("Offensive").AddItem(new MenuItem("NoAAStealth", "Don't AA while stealthed below % HP.")).SetValue(true);
             menu.SubMenu("MiscT")
                 .SubMenu("Offensive")
                 .AddItem(new MenuItem("OwnHPercStealth", "Min. own HP % to Stealth.").SetValue(new Slider(30, 1, 100)));
-            menu.SubMenu("[Fear] Combo")
+            menu.SubMenu("[D#rk] Combo")
             .AddItem(new MenuItem("ActiveCombo", "Dream Darkness").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             Game.PrintChat("<font color=\"#000000\">Darker Than Bl#ck</font> <font color=\"#FFFFFF\"> - </font> <font color=\"#8A0707\">The slaughter has begun.</font>");
@@ -131,7 +146,7 @@ namespace Darker_Than_Black_Vayne
             {
                 menu.SubMenu("int").AddItem(new MenuItem(interrupt[i], interrupt[i])).SetValue(true);
             }
-            menu.AddSubMenu(new Menu("[Fear] Harass Options", "harass"));
+            menu.AddSubMenu(new Menu("[D#rk] Harass Options", "harass"));
             menu.SubMenu("harass").AddItem(new MenuItem("hq", "Use Q Harass").SetValue(true));
             menu.SubMenu("harass").AddItem(new MenuItem("he", "Use E Harass").SetValue(true));
             E.SetTargetted(0.25f, 2200f);
@@ -223,11 +238,11 @@ namespace Darker_Than_Black_Vayne
             
         void NoAAStealth()
         {
+            var iStealthmyhp = Player.Health <=
+                             (Player.MaxHealth * (menu.Item("OwnHPercStealth").GetValue<Slider>().Value) / 100);
             var ownH = getPerValue(false);
-            var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?false : true;
-            if (menu.Item("OwnHPercStealth").GetValue<Slider>().Value >= ownH)
-                return;
-            if (menu.Item("OwnHPercStealth").GetValue<Slider>().Value <= ownH)
+            var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?true : true;
+            if ((iStealthmyhp) && (mb))
             {
                 orbwalker.SetAttack(mb);
             }
@@ -238,7 +253,41 @@ namespace Darker_Than_Black_Vayne
             double distance = Math.Sqrt(A.X * A.X + A.Y * A.Y);
             return new Vector3(new Vector2((float)(A.X / distance)), (float)(A.Y / distance));
         }
-        
+
+        private static void Usepotion()
+        {
+            var mobs = MinionManager.GetMinions(Player.ServerPosition, Q.Range,
+                MinionTypes.All,
+                MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            var iusehppotion = menu.Item("usehppotions").GetValue<bool>();
+            var iusepotionhp = Player.Health <=
+                               (Player.MaxHealth * (menu.Item("usepotionhp").GetValue<Slider>().Value) / 100);
+            var iusemppotion = menu.Item("usemppotions").GetValue<bool>();
+            var iusepotionmp = Player.Mana <=
+                               (Player.MaxMana * (menu.Item("usepotionmp").GetValue<Slider>().Value) / 100);
+            if (Utility.InFountain() || ObjectManager.Player.HasBuff("Recall")) return;
+
+            {
+                if (iusepotionhp && iusehppotion &&
+                     !(ObjectManager.Player.HasBuff("RegenerationPotion", true) ||
+                       ObjectManager.Player.HasBuff("ItemCrystalFlask", true) ||
+                       ObjectManager.Player.HasBuff("ItemMiniRegenPotion", true)))
+                {
+                    if (Items.HasItem(2041) && Items.CanUseItem(2041))
+                    {
+                        Items.UseItem(2041);
+                    }
+                    else if (Items.HasItem(2010) && Items.CanUseItem(2010))
+                    {
+                        Items.UseItem(2010);
+                    }
+                    else if (Items.HasItem(2003) && Items.CanUseItem(2003))
+                    {
+                        Items.UseItem(2003);
+                    }
+                }
+            }
+        }   
         #region Items
         private static void UseItemes(Obj_AI_Hero tar)
         {
