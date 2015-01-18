@@ -44,10 +44,8 @@ namespace Darker_Than_Black_Vayne
         public static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            //Utils.PrintMessage("Vayne loaded");
             if (Player.ChampionName != ChampName) return;
             spellData = new Dictionary<string, SpellSlot>();
-            //Game.PrintChat("Riven");
             menu = new Menu("Darker Than Bl#ck", "Gosu", true);
             //Orbwalker
             menu.AddSubMenu(new Menu("[Fear] Orbwalker", "Orbwalker"));
@@ -55,11 +53,7 @@ namespace Darker_Than_Black_Vayne
             //TS
             var TargetSelectorMenu = new Menu("[Fear] Target Selector", "Target Selector");
             TargetSelector.AddToMenu(TargetSelectorMenu);
-            // SimpleTs.AddToMenu(TargetSelectorMenu);
             menu.AddSubMenu(TargetSelectorMenu);
-
-            //menu.AddSubMenu(new Menu("Combo", "combo"));
-            //menu.SubMenu("combo").AddItem(new MenuItem("laugh", "Cancel w/ Laugh")).SetValue(false);
             menu.AddItem(
                 new MenuItem("UseET", "Use E (Toggle)").SetValue(
                     new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
@@ -207,7 +201,6 @@ namespace Darker_Than_Black_Vayne
                         Q.Cast(Game.CursorPos);
                     }
                 }
-                //Q.Cast(Game.CursorPos);
             }
         }
 
@@ -305,8 +298,6 @@ namespace Darker_Than_Black_Vayne
                 Combo();
             }
             if (!E.IsReady()) return; //||
-            //(orbwalker.ActiveMode.ToString() != "Combo" || !menu.Item("UseEC").GetValue<bool>()) &&
-            //!menu.Item("UseET").GetValue<KeyBind>().Active)) return;
             if (((orbwalker.ActiveMode.ToString() == "Combo" && menu.Item("UseEC").GetValue<bool>()) || (orbwalker.ActiveMode.ToString() == "Mixed" && menu.Item("he").GetValue<bool>()) || menu.Item("UseET").GetValue<KeyBind>().Active))
                 foreach (var hero in from hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f))
                                      let prediction = E.GetPrediction(hero)
