@@ -106,7 +106,6 @@ namespace Darker_Than_Black_Vayne
 
             menu.AddSubMenu(new Menu("[D#rk] Misc", "MiscT"));
                         menu.SubMenu("MiscT").AddSubMenu(new Menu("Offensive", "Offensive"));
-            menu.SubMenu("MiscT").SubMenu("Offensive").AddItem(new MenuItem("SpecialFocus", "Focus targets with 2 W marks.")).SetValue(true);
             menu.SubMenu("MiscT").SubMenu("Offensive").AddItem(new MenuItem("NoAAStealth", "Don't AA while stealthed below % HP.")).SetValue(true);
             menu.SubMenu("MiscT")
                 .SubMenu("Offensive")
@@ -219,23 +218,6 @@ namespace Darker_Than_Black_Vayne
             }
         }
 
-        void FocusTarget()
-        {
-            if (!isMenuEnabled("SpecialFocus")) return;
-            foreach (
-                var hero in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(hero => hero.IsValidTarget(Orbwalking.GetRealAutoAttackRange(null))))
-            {
-                if (has2WStacks(hero))
-                {
-                    orbwalker.ForceTarget(hero);
-                    Hud.SelectedUnit = hero;
-                    return;
-                }
-            }
-        }
-            
         void NoAAStealth()
         {
             var iStealthmyhp = Player.Health <=
