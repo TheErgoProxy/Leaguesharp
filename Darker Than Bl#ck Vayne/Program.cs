@@ -222,11 +222,9 @@ namespace Darker_Than_Black_Vayne
         {
             var iStealthmyhp = Player.Health <=
                              (Player.MaxHealth * (menu.Item("OwnHPercStealth").GetValue<Slider>().Value) / 100);
-            var ownH = getPerValue(false);
-            var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?true : true;
-            if ((iStealthmyhp) && (mb))
+            if ((iStealthmyhp) && Player.HasBuff("vaynetumblefade"))
             {
-                orbwalker.SetAttack(mb);
+                orbwalker.SetAttack(false);
             }
         }
 
