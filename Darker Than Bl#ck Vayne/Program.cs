@@ -352,10 +352,6 @@ namespace Darker_Than_Black_Vayne
         {
             return menu.Item(val).GetValue<bool>();
         }
-        bool has2WStacks(Obj_AI_Hero target)
-        {
-            return target.Buffs.Any(bu => bu.Name == "vaynesilvereddebuff" && bu.Count == 2);
-        }
         private static void Combo()
         {
             UseItemes(tar);
