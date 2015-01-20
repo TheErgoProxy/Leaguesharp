@@ -245,7 +245,6 @@ namespace Darker_Than_Black_Vayne
             var iusemppotion = menu.Item("usemppotions").GetValue<bool>();
             var iusepotionmp = Player.Mana <=
                                (Player.MaxMana * (menu.Item("usepotionmp").GetValue<Slider>().Value) / 100);
-            if (Utility.InFountain() || ObjectManager.Player.HasBuff("Recall")) return;
 
             {
                 if (iusepotionhp && iusehppotion &&
